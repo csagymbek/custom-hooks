@@ -1,0 +1,29 @@
+import { useEffect, useState } from "react";
+
+export const useFetch = (url = "", options = null) => {
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    setLoading(true);
+    fetch(url, options)
+      .then((res) => res.json())
+      .then((data) => {
+        if (isMounted) {
+          setData(data);
+          setError(null);
+        }
+      })
+      .catch((er) => {
+        if (isMounted) {
+          setError(er);
+          setData(null);
+        }
+      })
+      .finally(() => isMounted && setLoading(false));
+    return () => isMounted(false);
+  }, [url, options]);
+  return { error, data, loading };
+};
